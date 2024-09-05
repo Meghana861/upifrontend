@@ -1,52 +1,70 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-const login_url="http://localhost:9090/register/login"
-const Login=()=>{
-   const[mobileNumber,setMobileNumber]=useState('')
-   const[pin,setPin]=useState('')
-   const[message,setMessage]=useState('')
-   const navigate=useNavigate();
-   const handleLogin=(e)=>{
+import './Login.css';
+
+const login_url = "http://localhost:8080/register/login";
+
+const Login = () => {
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [pin, setPin] = useState('');
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!mobileNumber || !pin) {
+      setMessage('Both fields are required');
+      return;
+    }
     const loginuser={
         mobileNumber:mobileNumber,
         pin:pin
     }
+
     axios.post(login_url,loginuser)
     .then(response => {
         console.log("Server Response:", response);
-        if (response.status === 200 && response.data && response.data.mobileNumber) {
+        if (response.status === 200 && response.data ) {
             setMessage("Login Successful");
             setMobileNumber('');
-            setPin('')
+            setPin('');
+            navigate('/home',{state:{firstname:response.data.firstName,id:response.data.id}});
         } else {
-            setMessage("Invalid mobileNumber or pin");
+            setMessage("Invalid credentials");
         }
     })
     .catch(error => {
         console.error("Failed to Login", error);
-        setMessage("Login Failed. Please check your pin or mobileNumber.");
+        setMessage("Login Failed. Please check your credentials.");
     });
 };
-   return(
-       <div>
-        <h2> LOGIN </h2>
-        <div>
-        <form onSubmit={handleLogin}>
-        <div>
-        <label>mobileNumber</label>
-        <input type="text" value={mobileNumber} onChange={(e)=>setMobileNumber(e.target.value)}></input>
-       </div>
-       <div>
-        <label> Pin</label>
-        <input type="text" value={pin} onChange={(e)=>setPin(e.target.value)}></input>
-       </div>
-       <button type="submit" >Login</button>
-        </form>
+
+  return (
+    <div className="login-container">
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit} className="login-form">
+        <div className="form-group">
+          <label>Mobile Number</label>
+          <input 
+            type="text" 
+            value={mobileNumber} 
+            onChange={(e) => setMobileNumber(e.target.value)} 
+          />
         </div>
-        {message && <p>{message}</p>}
+        <div className="form-group">
+          <label>Pin</label>
+          <input 
+            type="password" 
+            value={pin} 
+            onChange={(e) => setPin(e.target.value)} 
+          />
         </div>
-   )
-}
+        <button type="submit">Login</button>
+        {message && <p className="message">{message}</p>}
+      </form>
+    </div>
+  );
+};
+
 export default Login;

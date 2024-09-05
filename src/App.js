@@ -1,14 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-//import BookList from './components/BookList';
-// import Login from './Login.js';
-
-import BookList from './components/BookList.js';
-import PostBook from './components/PostBooks.js';
- import PlaceOrder from './components/PlaceOrder.js';
-  import Register from './components/Register.js';
- import Login from './components/Login.js';
- import GetAllOrders from './components/GetAllOrders.js'
+import Register from './components/Register.js';
+import Login from './components/Login.js';
+import HomePage from './components/Homepage.js';
+import AccountCreation from './components/Accountcreation.js';
+import ViewBank from './components/ViewBanks.js';
+import TransferMoney from './components/TransferMoney.js';
 function App() {
     return (
         <div>
@@ -16,10 +13,10 @@ function App() {
                 <Routes>
              <Route path="/" element={<Register/>}></Route> 
             <Route path='/login' element={<Login/>}></Route>
-            <Route path="/books" element={<BookList/>}></Route>
-            { <Route path="/postbook" element={<PostBook/>}></Route>}
-            <Route path="/placeorder" element={<PlaceOrder/>}></Route> 
-            <Route path="/getorders" element={<GetAllOrders/>}></Route>
+            <Route path="/home" element={<HomePage/>}></Route>
+            <Route path="/accountcreate" element={<AccountCreation/>}></Route>
+            <Route path="/view-accounts" element={<ViewBank/>}></Route>
+            <Route path="/money-transfer" element={<TransferMoney/>}></Route>
             </Routes>
             </Router>
         </div>
