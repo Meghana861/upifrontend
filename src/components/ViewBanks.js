@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import './ViewBank.css';
 
 const ViewBank = () => {
   const location = useLocation();
@@ -9,14 +10,16 @@ const ViewBank = () => {
   
   const [accounts, setAccounts] = useState([]);
   const [message, setMessage] = useState('');
-  const [balances, setBalances] = useState({}); // State to hold balance info for each account
+  const [balances, setBalances] = useState({});
+  const [showPinPrompt, setShowPinPrompt] = useState(false);
+  const [upiPin, setUpiPin] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [selectedAccountUpiPin, setSelectedAccountUpiPin] = useState('');
 
-  // Fetch the user's bank accounts
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/account/${userId}`);
-        console.log(response);
         setAccounts(response.data);
       } catch (error) {
         console.error('Error fetching accounts:', error);
@@ -26,57 +29,74 @@ const ViewBank = () => {
     fetchAccounts();
   }, [userId]);
 
-  // Function to check the balance of a specific account
-  const checkBalance = async (id) => {
+  const promptForUpi = (id, upiPin) => {
+    setSelectedAccountId(id);
+    setSelectedAccountUpiPin(upiPin);
+    setShowPinPrompt(true);
+  };
+
+  const handlePinSubmit = async () => {
+    if (upiPin !== selectedAccountUpiPin) {
+      setMessage('UPI PIN is incorrect. Please try again.');
+      return;
+    }
+
     try {
-      const response = await axios.get(`http://localhost:8080/account/accountId/${id}`);
+      const response = await axios.get(`http://localhost:8080/account/accountId/${selectedAccountId}`);
       setBalances(prevBalances => ({
         ...prevBalances,
-        [id]: `Balance for account ${id}: ${response.data.balance}`
+        [selectedAccountId]: `Balance for account ${selectedAccountId}: ${response.data.balance}`
       }));
+      setMessage('');
     } catch (error) {
       console.error('Error checking balance:', error);
       setMessage('Failed to check balance. Please try again later.');
+    } finally {
+      setShowPinPrompt(false);
     }
   };
 
   return (
     <div className="accounts-container">
-      <h1>{firstname}'s Bank Accounts</h1>
+      <h1 className="header">{firstname}'s Bank Accounts</h1>
       {message && <p className="message">{message}</p>}
-      
-      {accounts.length > 0 ? (
-        <div className="accounts-list">
-          {accounts.map((account, index) => (
-            <div key={index} className="account-box">
-              <h3>Bank: {account.bankName}</h3>
-              <p>Account Number: {account.accountNumber}</p>
-              <p>Transaction Limit: {account.transactionLimit}</p>
-              <p>Balance: {account.balance}</p>
-              <button
-                onClick={() => checkBalance(account.id)}
-                style={{
-                  fontSize: '12px',
-                  padding: '5px 10px',
-                  backgroundColor: '#007bff',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  marginTop: '10px'
-                }}
-              >
-                Check Balance
-              </button>
-              {/* Display balance below the button for the specific account */}
-              {balances[account.id] && (
-                <p style={{ marginTop: '10px', color: '#333' }}>{balances[account.id]}</p>
-              )}
-            </div>
-          ))}
-        </div>
+
+      {!showPinPrompt ? (
+        accounts.length > 0 ? (
+          <div className="accounts-list">
+            {accounts.map((account) => (
+              <div key={account.id} className="account-box">
+                <h3 className="account-bank-name">{account.bankName}</h3>
+                <p className="account-detail">Account Number: {account.accountNumber}</p>
+                <p className="account-detail">Transaction Limit: {account.transactionLimit}</p>
+                <p className="account-detail">Balance: {account.balance}</p>
+                <button
+                  onClick={() => promptForUpi(account.id, account.upiPin)}
+                  className="check-balance-button"
+                >
+                  Check Balance
+                </button>
+                {balances[account.id] && (
+                  <p className="account-balance">{balances[account.id]}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="no-accounts">No bank accounts found.</p>
+        )
       ) : (
-        <p>No bank accounts found.</p>
+        <div className="pin-prompt">
+          <h2>Enter UPI PIN</h2>
+          <input
+            type="password"
+            value={upiPin}
+            onChange={(e) => setUpiPin(e.target.value)}
+            placeholder="UPI PIN"
+            required
+          />
+          <button onClick={handlePinSubmit} className="verify-pin-button">Verify PIN</button>
+        </div>
       )}
     </div>
   );

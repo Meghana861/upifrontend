@@ -17,7 +17,7 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validate inputs
+   
     if (!firstname || !lastname || !email || !mobileNumber || !pin) {
       setMessage('All fields are required');
       return;
@@ -39,7 +39,7 @@ const Register = () => {
       pin: pin
     };
 
-    console.log('Sending user data:', newUser); // Log data being sent
+    console.log('Sending user data:', newUser); 
 
     axios.post(register_url, newUser)
       .then(response => {

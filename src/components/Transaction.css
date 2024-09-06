@@ -1,0 +1,47 @@
+/* Transaction.css */
+
+.transaction-history-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .transaction-history-container h1 {
+    text-align: center;
+    color: #2c3e50;
+  }
+  
+  .transaction-history-container h2 {
+    margin-top: 20px;
+    color: #34495e;
+  }
+  
+  .message {
+    color: #e74c3c;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .transaction-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .transaction-item {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transaction-detail p {
+    margin: 5px 0;
+  }
+  
+  .transaction-detail p strong {
+    color: #2c3e50;
+  }
+  

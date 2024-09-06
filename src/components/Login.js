@@ -29,7 +29,7 @@ const Login = () => {
             setMessage("Login Successful");
             setMobileNumber('');
             setPin('');
-            navigate('/home',{state:{firstname:response.data.firstName,id:response.data.id}});
+           navigate('/home', { state: { firstname: response.data.firstName, id: response.data.id, mobileNumber } });
         } else {
             setMessage("Invalid credentials");
         }

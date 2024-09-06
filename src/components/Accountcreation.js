@@ -5,15 +5,15 @@ import './AccountCreation.css';
 
 const AccountCreation = () => {
   const location = useLocation();
-  const firstname = location.state?.firstname;  // Get firstname from state
-  const userId = location.state?.id;  // Get userId from state
+  const firstname = location.state?.firstname;  
+  const userId = location.state?.id;  
 
   const [banks, setBanks] = useState([]);
   const [account, setAccount] = useState({ bankId: '', accountNumber: '', transactionLimit: '', upiPin: '' });
   const [message, setMessage] = useState('');
   const [showAddAccountButton, setShowAddAccountButton] = useState(false);
 
-  // Fetch the list of banks when the component loads
+  
   useEffect(() => {
     const fetchBanks = async () => {
       try {
@@ -26,12 +26,12 @@ const AccountCreation = () => {
     fetchBanks();
   }, []);
 
-  // Handle input changes for the account
+
   const handleInputChange = (field, value) => {
     setAccount({ ...account, [field]: value });
   };
 
-  // Validate the form inputs
+
   const validateForm = () => {
     if (!account.bankId || !account.accountNumber || !account.transactionLimit || !account.upiPin) {
       return 'Please fill in all fields.';
@@ -48,7 +48,7 @@ const AccountCreation = () => {
     return null;
   };
 
-  // Handle form submission
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -59,16 +59,16 @@ const AccountCreation = () => {
     }
 
     const payload = {
-      bankName: account.bankId,  // Mapping bankId to bankName as per API requirement
+      bankName: account.bankId,  
       accountNumber: account.accountNumber,
       upiPin: account.upiPin,
       transactionLimit: parseFloat(account.transactionLimit),
       user: {
-        id: userId  // Add user id in the 'user' object
+        id: userId  
       }
     };
 
-    // Log the data to be sent to the API for debugging purposes
+   
     console.log('Data being sent to API:', payload);
 
     try {
@@ -76,7 +76,7 @@ const AccountCreation = () => {
       if (response.status === 200) {
         setMessage('Account created successfully!');
         setShowAddAccountButton(true);
-        clearForm();  // Clear the form after successful submission
+        clearForm();  
       } else {
         setMessage('Failed to create account. Please try again.');
       }
@@ -86,21 +86,21 @@ const AccountCreation = () => {
     }
   };
 
-  // Clear form fields
+  
   const clearForm = () => {
     setAccount({ bankId: '', accountNumber: '', transactionLimit: '', upiPin: '' });
   };
 
-  // Add another account (clear form for a new account)
+  
   const addAnotherAccount = () => {
     clearForm();
-    setMessage(''); // Clear the message when adding another account
+    setMessage(''); 
     setShowAddAccountButton(false);
   };
 
   return (
     <div className="account-creation-container">
-      <h1>Welcome, {firstname}</h1> {/* Display the firstname */}
+      <h1>Welcome, {firstname}</h1>
       <h2>Create Your Account</h2>
 
       <form onSubmit={handleSubmit}>

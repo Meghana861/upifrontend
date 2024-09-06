@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import './MoneyTransfer.css';
 const TransferMoney = () => {
+  const location = useLocation();
+  const userId = location.state?.id;
+  const senderMobileNumber = location.state?.mobileNumber; 
+
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [recipientMobile, setRecipientMobile] = useState('');
@@ -9,13 +14,11 @@ const TransferMoney = () => {
   const [upiPin, setUpiPin] = useState('');
   const [message, setMessage] = useState('');
   const [showPinPrompt, setShowPinPrompt] = useState(false);
-  const location = useLocation();
-  const firstname = location.state?.firstname;
-  const userId = location.state?.id;
-  // Fetch all user's accounts
+
+  
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/account/${userId}`); // Adjust the endpoint if needed
+      const response = await axios.get(`http://localhost:8080/account/${userId}`);
       setAccounts(response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);
@@ -27,41 +30,72 @@ const TransferMoney = () => {
     fetchAccounts();
   }, [userId]);
 
-  const handleSubmit = async (event) => {
+  
+  const fetchSelectedAccountDetails = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/account/accountId/${id}`);
+      setSelectedAccount(response.data);
+    } catch (error) {
+      console.error('Error fetching account details:', error);
+      setMessage('Failed to fetch account details.');
+    }
+  };
+
+ 
+  const handleSubmit = (event) => {
     event.preventDefault();
     if (!recipientMobile || !transferAmount || !selectedAccount) {
       setMessage('Please fill in all required fields.');
       return;
     }
-
     setShowPinPrompt(true);
   };
 
+  
   const handlePinSubmit = async () => {
+    if (upiPin !== selectedAccount.upiPin) {
+      setMessage('UPI PIN is incorrect. Please try again.');
+      return;
+    }
+  
+    
+    const payload = {
+      senderMobileNumber,
+      receiverMobileNumber: recipientMobile,
+      amount: parseFloat(transferAmount),
+      upiPin
+    };
+  
+    console.log('Transfer Payload:', payload);
+  
     try {
-      const response = await axios.post('http://localhost:8080/transfer', {
-        fromAccount: selectedAccount.id,
-        toMobile: recipientMobile,
-        amount: transferAmount,
-        upiPin
-      });
-
-      setMessage('Transfer successful!');
-      setShowPinPrompt(false); // Hide PIN prompt after successful transfer
+     
+      const transferResponse = await axios.post('http://localhost:8080/transfer', payload);
+      console.log('TransferResponse:', transferResponse);
+  
+      
+      if (transferResponse.status === 200) {
+        setMessage('Transfer successful!');
+      } else {
+        setMessage('Transfer failed. Please try again.');
+      }
     } catch (error) {
       console.error('Error during transfer:', error);
-      setMessage('Failed to complete transfer. Please check your UPI PIN and try again.');
+      setMessage('Failed to complete transfer. Please try again.');
+    } finally {
+      setShowPinPrompt(false); 
     }
   };
+  
 
   return (
-    <div className="transfer">
+    <div className="transfer-container">
       <h1>Money Transfer</h1>
       {message && <p className="message">{message}</p>}
 
       {!showPinPrompt ? (
-        <form onSubmit={handleSubmit}>
-          <div>
+        <form onSubmit={handleSubmit} className="transfer-form">
+          <div className="form-group">
             <label htmlFor="recipientMobile">Recipient Mobile No:</label>
             <input
               type="text"
@@ -72,7 +106,7 @@ const TransferMoney = () => {
             />
           </div>
 
-          <div>
+          <div className="form-group">
             <label htmlFor="transferAmount">Amount:</label>
             <input
               type="number"
@@ -80,7 +114,6 @@ const TransferMoney = () => {
               value={transferAmount}
               onChange={(e) => setTransferAmount(e.target.value)}
               required
-              min="0.01" // Prevent zero or negative amounts
             />
           </div>
 
@@ -89,14 +122,8 @@ const TransferMoney = () => {
               accounts.map((account) => (
                 <div
                   key={account.id}
-                  className="account-box"
-                  onClick={() => setSelectedAccount(account)}
-                  style={{
-                    border: `2px solid ${selectedAccount?.id === account.id ? '#007bff' : '#ccc'}`,
-                    padding: '10px',
-                    marginBottom: '10px',
-                    cursor: 'pointer'
-                  }}
+                  className={`account-box ${selectedAccount?.id === account.id ? 'selected' : ''}`}
+                  onClick={() => fetchSelectedAccountDetails(account.id)}
                 >
                   <h3>Bank: {account.bankName}</h3>
                   <p>Account Number: {account.accountNumber}</p>
@@ -109,7 +136,7 @@ const TransferMoney = () => {
             )}
           </div>
 
-          <button type="submit" disabled={!selectedAccount}>
+          <button type="submit" className="submit-button" disabled={!selectedAccount}>
             Submit Transfer
           </button>
         </form>
@@ -123,7 +150,7 @@ const TransferMoney = () => {
             placeholder="UPI PIN"
             required
           />
-          <button onClick={handlePinSubmit}>Verify PIN</button>
+          <button onClick={handlePinSubmit} className="verify-pin-button">Verify PIN</button>
         </div>
       )}
     </div>
@@ -131,3 +158,5 @@ const TransferMoney = () => {
 };
 
 export default TransferMoney;
+
+ 
