@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './MoneyTransfer.css';
+import { UserContext } from './UserContext'; 
+
 const TransferMoney = () => {
-  const location = useLocation();
-  const userId = location.state?.id;
-  const senderMobileNumber = location.state?.mobileNumber; 
+  // const location = useLocation();
+  // const userId = location.state?.id;
+  const { user } = useContext(UserContext); 
+
+  const senderMobileNumber = user.mobileNumber; 
 
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -18,7 +22,7 @@ const TransferMoney = () => {
   
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/account/${userId}`);
+      const response = await axios.get(`http://localhost:8080/account/${user.id}`);
       setAccounts(response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);
@@ -28,7 +32,7 @@ const TransferMoney = () => {
 
   useEffect(() => {
     fetchAccounts();
-  }, [userId]);
+  }, [user.id]);
 
   
   const fetchSelectedAccountDetails = async (id) => {

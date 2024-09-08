@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './EditProfile.css';
+import { UserContext } from './UserContext'; 
 
 // Base URL for the backend API
 const userDetailsUrl = "http://localhost:8080/register"; 
 
 const EditProfile = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const userId = location.state?.id; // Get userId from passed state
+  const { user } = useContext(UserContext);  // Get user from context
 
   // State to hold user data
   const [userData, setUserData] = useState({
@@ -26,26 +26,30 @@ const EditProfile = () => {
   // Fetch user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`${userDetailsUrl}/${userId}`);
-        const user = response.data;
-        
-        // Ensure correct mapping from backend response
-        setUserData({
-          firstName: user.firstName,   
-          lastName: user.lastName,    
-          email: user.email,
-          mobileNumber: user.mobileNumber,
-          pin: user.pin
-        });
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        setMessage('Failed to load user details.');
+      if (user && user.id) {  // Ensure user is defined before making the request
+        try {
+          const response = await axios.get(`${userDetailsUrl}/${user.id}`);
+          const userDataFromApi = response.data;
+          
+          // Ensure correct mapping from backend response
+          setUserData({
+            firstName: userDataFromApi.firstName,   
+            lastName: userDataFromApi.lastName,    
+            email: userDataFromApi.email,
+            mobileNumber: userDataFromApi.mobileNumber,
+            pin: userDataFromApi.pin
+          });
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setMessage('Failed to load user details.');
+        }
+      } else {
+        setMessage('User not found or not logged in.');
       }
     };
 
     fetchUserData();
-  }, [userId]);
+  }, [user]);
 
   // Handle input changes for form fields
   const handleChange = (e) => {
@@ -64,7 +68,7 @@ const EditProfile = () => {
 
     try {
       // Send a PUT request to update the user data
-      await axios.put(`${userDetailsUrl}/${userId}`, userData);
+      await axios.put(`${userDetailsUrl}/${user.id}`, userData);
       setMessage('Profile updated successfully!');
       setIsEditing(false); // Exit editing mode
     } catch (error) {
@@ -72,6 +76,10 @@ const EditProfile = () => {
       setMessage('Failed to update profile.');
     }
   };
+
+  if (!user) {
+    return <p>Loading user data...</p>;
+  }
 
   return (
     <div className="edit-profile-container">
@@ -91,9 +99,9 @@ const EditProfile = () => {
           <input
             type="text"
             name="firstName"
-            value={userData.firstName} // Ensure correct mapping
+            value={userData.firstName}
             onChange={handleChange}
-            readOnly={!isEditing} // Read-only when not editing
+            readOnly={!isEditing}
           />
         </div>
         <div className="form-group">
@@ -101,9 +109,9 @@ const EditProfile = () => {
           <input
             type="text"
             name="lastName"
-            value={userData.lastName}  // Ensure correct mapping
+            value={userData.lastName}
             onChange={handleChange}
-            readOnly={!isEditing} // Read-only when not editing
+            readOnly={!isEditing}
           />
         </div>
         <div className="form-group">
@@ -111,9 +119,9 @@ const EditProfile = () => {
           <input
             type="email"
             name="email"
-            value={userData.email}  // Ensure correct mapping
+            value={userData.email}
             onChange={handleChange}
-            readOnly={!isEditing} // Read-only when not editing
+            readOnly={!isEditing}
           />
         </div>
         <div className="form-group">
@@ -121,9 +129,9 @@ const EditProfile = () => {
           <input
             type="text"
             name="mobileNumber"
-            value={userData.mobileNumber}  // Ensure correct mapping
+            value={userData.mobileNumber}
             onChange={handleChange}
-            readOnly={!isEditing} // Read-only when not editing
+            readOnly={!isEditing}
           />
         </div>
         <div className="form-group">
@@ -131,9 +139,9 @@ const EditProfile = () => {
           <input
             type="password"
             name="pin"
-            value={userData.pin}  // Ensure correct mapping
+            value={userData.pin}
             onChange={handleChange}
-            readOnly={!isEditing} // Read-only when not editing
+            readOnly={!isEditing}
           />
         </div>
 

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './Transaction.css';
-
+import { UserContext } from './UserContext';
 const TransactionHistory = () => {
   const location = useLocation();
   const { mobileNumber } = location.state || {};
   const [transactions, setTransactions] = useState([]);
   const [message, setMessage] = useState('');
-
+  const { user } = useContext(UserContext);
   useEffect(() => {
     const fetchTransactions = async () => {
       try {

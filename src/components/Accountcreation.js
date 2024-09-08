@@ -1,19 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './AccountCreation.css';
+import { UserContext } from './UserContext'; 
 
 const AccountCreation = () => {
-  const location = useLocation();
-  const firstname = location.state?.firstname;  
-  const userId = location.state?.id;  
-
+  // const location = useLocation();
+  // const firstname = location.state?.firstname;  
+  // const userId = location.state?.id;  
+  const { user } = useContext(UserContext);
   const [banks, setBanks] = useState([]);
-  const [account, setAccount] = useState({ bankId: '', accountNumber: '', transactionLimit: '', upiPin: '' });
+  const [account, setAccount] = useState({
+    bankId: '',
+    accountNumber: '',
+    transactionLimit: '',
+    upiPin: '',
+    isPrimary: false 
+  });
   const [message, setMessage] = useState('');
   const [showAddAccountButton, setShowAddAccountButton] = useState(false);
 
-  
   useEffect(() => {
     const fetchBanks = async () => {
       try {
@@ -26,11 +32,9 @@ const AccountCreation = () => {
     fetchBanks();
   }, []);
 
-
   const handleInputChange = (field, value) => {
     setAccount({ ...account, [field]: value });
   };
-
 
   const validateForm = () => {
     if (!account.bankId || !account.accountNumber || !account.transactionLimit || !account.upiPin) {
@@ -48,7 +52,6 @@ const AccountCreation = () => {
     return null;
   };
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,17 +66,17 @@ const AccountCreation = () => {
       accountNumber: account.accountNumber,
       upiPin: account.upiPin,
       transactionLimit: parseFloat(account.transactionLimit),
+      isPrimary: account.isPrimary,
       user: {
-        id: userId  
+        id: user.id  
       }
     };
 
-   
     console.log('Data being sent to API:', payload);
 
     try {
       const response = await axios.post('http://localhost:8080/account', payload);
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setMessage('Account created successfully!');
         setShowAddAccountButton(true);
         clearForm();  
@@ -86,12 +89,10 @@ const AccountCreation = () => {
     }
   };
 
-  
   const clearForm = () => {
-    setAccount({ bankId: '', accountNumber: '', transactionLimit: '', upiPin: '' });
+    setAccount({ bankId: '', accountNumber: '', transactionLimit: '', upiPin: '', isPrimary: false });
   };
 
-  
   const addAnotherAccount = () => {
     clearForm();
     setMessage(''); 
@@ -100,7 +101,7 @@ const AccountCreation = () => {
 
   return (
     <div className="account-creation-container">
-      <h1>Welcome, {firstname}</h1>
+      <h1>Welcome, {user?.firstname}</h1>
       <h2>Create Your Account</h2>
 
       <form onSubmit={handleSubmit}>
@@ -149,6 +150,20 @@ const AccountCreation = () => {
               maxLength={4}
             />
           </div>
+
+          <div className="form-group-toggle">
+  <label>
+    Set as Primary Account
+    <div className="toggle-switch">
+      <input
+        type="checkbox"
+        checked={account.isPrimary}
+        onChange={(e) => handleInputChange('isPrimary', e.target.checked)}
+      />
+      <span className="slider round"></span>
+    </div>
+  </label>
+</div>
         </div>
 
         <button type="submit">Create Account</button>

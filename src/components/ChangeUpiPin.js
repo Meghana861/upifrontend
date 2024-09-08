@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-import './ChangeUpiPin.css';
-
+//import './ChangeUpiPin.css';
+import { UserContext } from './UserContext'; 
 const ChangeUpiPin = () => {
-  const location = useLocation();
-  const userId = location.state?.id;
+  // const location = useLocation();
+  // const userId = location.state?.id;
+  const { user } = useContext(UserContext); 
 
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -19,7 +20,7 @@ const ChangeUpiPin = () => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/account/${userId}`);
+        const response = await axios.get(`http://localhost:8080/account/${user.id}`);
         setAccounts(response.data);
       } catch (error) {
         console.error('Error fetching accounts:', error);
@@ -27,7 +28,7 @@ const ChangeUpiPin = () => {
       }
     };
     fetchAccounts();
-  }, [userId]);
+  }, [user.id]);
 
   // Verify old UPI PIN and show the fields for entering the new PIN
   const verifyOldPin = async (accountId) => {
@@ -60,9 +61,11 @@ const ChangeUpiPin = () => {
 
     try {
       const payload = {
-        upiPin: newUpiPin,
+        oldPin: oldUpiPin,
+        newPin: newUpiPin,
       };
-      await axios.put(`http://localhost:8080/account/accountId/${selectedAccount.id}`, payload);
+
+      await axios.put(`http://localhost:8080/account/updatePin/${selectedAccount.id}`, payload);
       setMessage('UPI PIN updated successfully.');
       setShowPinFields(false);
     } catch (error) {

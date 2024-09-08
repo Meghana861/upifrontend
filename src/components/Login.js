@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { UserContext } from './UserContext';
 import './Login.css';
 
 const login_url = "http://localhost:8080/register/login";
@@ -10,6 +11,8 @@ const Login = () => {
   const [pin, setPin] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext); // Access setUser from UserContext
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -17,28 +20,28 @@ const Login = () => {
       setMessage('Both fields are required');
       return;
     }
-    const loginuser={
-        mobileNumber:mobileNumber,
-        pin:pin
-    }
 
-    axios.post(login_url,loginuser)
-    .then(response => {
-        console.log("Server Response:", response);
-        if (response.status === 200 && response.data ) {
-            setMessage("Login Successful");
-            setMobileNumber('');
-            setPin('');
-           navigate('/home', { state: { firstname: response.data.firstName, id: response.data.id, mobileNumber } });
+    const loginuser = {
+      mobileNumber: mobileNumber,
+      pin: pin
+    };
+
+    axios.post(login_url, loginuser)
+      .then(response => {
+        if (response.status === 200 && response.data) {
+          setMessage("Login Successful");
+          setUser({ firstname: response.data.firstName, id: response.data.id, mobileNumber }); // Store user data
+          setMobileNumber('');
+          setPin('');
+          navigate('/home'); // No need to pass state now
         } else {
-            setMessage("Invalid credentials");
+          setMessage("Invalid credentials");
         }
-    })
-    .catch(error => {
-        console.error("Failed to Login", error);
+      })
+      .catch(error => {
         setMessage("Login Failed. Please check your credentials.");
-    });
-};
+      });
+  };
 
   return (
     <div className="login-container">

@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './ViewBank.css';
+ import { UserContext } from './UserContext';
 
 const ViewBank = () => {
-  const location = useLocation();
-  const firstname = location.state?.firstname;
-  const userId = location.state?.id;
-  
+  // const location = useLocation();
+  // const firstname = location.state?.firstname;
+  // const userId = location.state?.id;
+  const { user } = useContext(UserContext);
   const [accounts, setAccounts] = useState([]);
   const [message, setMessage] = useState('');
   const [balances, setBalances] = useState({});
@@ -19,7 +20,7 @@ const ViewBank = () => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/account/${userId}`);
+        const response = await axios.get(`http://localhost:8080/account/${user.id}`);
         setAccounts(response.data);
       } catch (error) {
         console.error('Error fetching accounts:', error);
@@ -27,7 +28,7 @@ const ViewBank = () => {
       }
     };
     fetchAccounts();
-  }, [userId]);
+  }, [user.id]);
 
   const promptForUpi = (id, upiPin) => {
     setSelectedAccountId(id);
@@ -58,7 +59,7 @@ const ViewBank = () => {
 
   return (
     <div className="accounts-container">
-      <h1 className="header">{firstname}'s Bank Accounts</h1>
+      <h1 className="header">{user.firstname}'s Bank Accounts</h1>
       {message && <p className="message">{message}</p>}
 
       {!showPinPrompt ? (

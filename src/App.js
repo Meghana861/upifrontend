@@ -9,9 +9,11 @@ import TransferMoney from './components/TransferMoney.js';
 import TransactionHistory from './components/TransacionHistory.js';
 import EditProfile from './components/EditProfile.js';
 import ChangeUpiPin from './components/ChangeUpiPin.js';
+import { UserProvider } from './components/UserContext.js';
 function App() {
     return (
-        <div>
+        <UserProvider>
+
            <Router>
                 <Routes>
              <Route path="/" element={<Register/>}></Route> 
@@ -26,7 +28,7 @@ function App() {
 
             </Routes>
             </Router>
-        </div>
+            </UserProvider>
     );
 }
 
