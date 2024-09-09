@@ -10,6 +10,7 @@ import TransactionHistory from './components/TransacionHistory.js';
 import EditProfile from './components/EditProfile.js';
 import ChangeUpiPin from './components/ChangeUpiPin.js';
 import { UserProvider } from './components/UserContext.js';
+import ChangeTransactionLimit from './components/ChangeTransactionLimit.js';
 function App() {
     return (
         <UserProvider>
@@ -25,6 +26,7 @@ function App() {
             <Route path="/view-transactions" element={<TransactionHistory/>}></Route>
             <Route path="/edit-profile" element={<EditProfile/>}></Route>
             <Route path="/change-upi-pin" element={<ChangeUpiPin/>}></Route>
+            <Route path="/transaction-limit" element={<ChangeTransactionLimit/>}></Route>
 
             </Routes>
             </Router>

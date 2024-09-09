@@ -70,7 +70,7 @@ const ViewBank = () => {
                 <h3 className="account-bank-name">{account.bankName}</h3>
                 <p className="account-detail">Account Number: {account.accountNumber}</p>
                 <p className="account-detail">Transaction Limit: {account.transactionLimit}</p>
-                <p className="account-detail">Balance: {account.balance}</p>
+               
                 <button
                   onClick={() => promptForUpi(account.id, account.upiPin)}
                   className="check-balance-button"
@@ -84,7 +84,7 @@ const ViewBank = () => {
             ))}
           </div>
         ) : (
-          <p className="no-accounts">No bank accounts found.</p>
+          <p className="no-accounts">Loading..</p>
         )
       ) : (
         <div className="pin-prompt">

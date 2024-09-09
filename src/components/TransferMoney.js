@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import './MoneyTransfer.css';
 import { UserContext } from './UserContext'; 
 
+
 const TransferMoney = () => {
   // const location = useLocation();
   // const userId = location.state?.id;
@@ -50,6 +51,10 @@ const TransferMoney = () => {
     event.preventDefault();
     if (!recipientMobile || !transferAmount || !selectedAccount) {
       setMessage('Please fill in all required fields.');
+      return;
+    }
+    if (parseFloat(transferAmount) > selectedAccount.transactionLimit) {
+      setMessage(`Transfer amount exceeds the transaction limit of ${selectedAccount.transactionLimit}.`);
       return;
     }
     setShowPinPrompt(true);
@@ -136,7 +141,7 @@ const TransferMoney = () => {
                 </div>
               ))
             ) : (
-              <p>No bank accounts found.</p>
+              <p>Loading....</p>
             )}
           </div>
 
