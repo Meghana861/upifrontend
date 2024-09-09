@@ -134,7 +134,17 @@ const EditProfile = () => {
             readOnly={!isEditing}
           />
         </div>
-       
+        <div className="form-group">
+          <label>Pin</label>
+          <input
+            type="password"
+            name="pin"
+            value={userData.pin}
+            onChange={handleChange}
+            readOnly={!isEditing}
+          />
+        </div>
+
         {isEditing && (
           <>
             <button type="button" onClick={handleSave}>Save Changes</button>

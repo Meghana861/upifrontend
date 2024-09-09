@@ -137,7 +137,7 @@ const TransferMoney = () => {
                   <h3>Bank: {account.bankName}</h3>
                   <p>Account Number: {account.accountNumber}</p>
                   <p>Transaction Limit: {account.transactionLimit}</p>
-                  <p>Balance: {account.balance}</p>
+                  
                 </div>
               ))
             ) : (
