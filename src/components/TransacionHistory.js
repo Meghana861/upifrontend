@@ -6,6 +6,7 @@ import { UserContext } from './UserContext';
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true); // Added loading state
   const { user } = useContext(UserContext);
 
   useEffect(() => {
@@ -13,12 +14,15 @@ const TransactionHistory = () => {
       try {
         if (user && user.mobileNumber) {
           const response = await axios.get(`http://localhost:8080/transfer/history/${user.mobileNumber}`);
-          console.log(response);
-          setTransactions(response.data);
+          const data = response.data;
+          // Ensure transactions is an array, even if empty
+          setTransactions(Array.isArray(data) ? data : []);
         }
       } catch (error) {
         console.error('Error fetching transactions:', error);
         setMessage('Failed to fetch transaction history. Please try again later.');
+      } finally {
+        setLoading(false); // Set loading to false once data is fetched or error occurs
       }
     };
 
@@ -31,10 +35,13 @@ const TransactionHistory = () => {
     <div className="transaction-history-container">
       <h1>Transaction History</h1>
       {message && <p className="message">{message}</p>}
+      
       {user && user.mobileNumber ? (
         <>
           <h2>Transactions for Mobile Number: {user.mobileNumber}</h2>
-          {transactions.length > 0 ? (
+          {loading ? ( // Display loading message while data is being fetched
+            <p>Loading...</p>
+          ) : transactions.length > 0 ? ( // If transactions are found
             <ul className="transaction-list">
               {transactions.map((transaction, index) => {
                 const date = new Date(transaction.transactionDate);
@@ -55,7 +62,7 @@ const TransactionHistory = () => {
               })}
             </ul>
           ) : (
-            <p>Loading....</p>
+            <p>No transactions found.</p>
           )}
         </>
       ) : (

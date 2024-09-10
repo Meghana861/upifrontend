@@ -1,13 +1,9 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
-//import './ChangeUpiPin.css';
-import { UserContext } from './UserContext'; 
-const ChangeUpiPin = () => {
-  // const location = useLocation();
-  // const userId = location.state?.id;
-  const { user } = useContext(UserContext); 
+import { UserContext } from './UserContext';
 
+const ChangeUpiPin = () => {
+  const { user } = useContext(UserContext);
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [oldUpiPin, setOldUpiPin] = useState('');
@@ -15,6 +11,7 @@ const ChangeUpiPin = () => {
   const [reEnterNewUpiPin, setReEnterNewUpiPin] = useState('');
   const [message, setMessage] = useState('');
   const [showPinFields, setShowPinFields] = useState(false);
+  const [loading, setLoading] = useState(true); // Loading state
 
   // Fetch user bank accounts
   useEffect(() => {
@@ -25,6 +22,8 @@ const ChangeUpiPin = () => {
       } catch (error) {
         console.error('Error fetching accounts:', error);
         setMessage('Failed to fetch accounts. Please try again later.');
+      } finally {
+        setLoading(false); // Set loading to false once data is fetched or error occurs
       }
     };
     fetchAccounts();
@@ -79,7 +78,9 @@ const ChangeUpiPin = () => {
       <h1>Change UPI PIN</h1>
       {message && <p className="message">{message}</p>}
 
-      {!showPinFields ? (
+      {loading ? ( // Show loading indicator while data is being fetched
+        <p>Loading...</p>
+      ) : !showPinFields ? ( // Show accounts list if not showing PIN fields
         <div className="accounts-list">
           {accounts.length > 0 ? (
             accounts.map((account) => (
@@ -107,10 +108,10 @@ const ChangeUpiPin = () => {
               </div>
             ))
           ) : (
-            <p>Loading...</p>
+            <p>No accounts found.</p> // Message when no accounts are available
           )}
         </div>
-      ) : (
+      ) : ( // Show PIN fields if `showPinFields` is true
         <div className="new-upi-fields">
           <h2>Enter New UPI PIN</h2>
           <input

@@ -4,30 +4,29 @@ import { useLocation } from 'react-router-dom';
 import './MoneyTransfer.css';
 import { UserContext } from './UserContext'; 
 
-
 const TransferMoney = () => {
-  // const location = useLocation();
-  // const userId = location.state?.id;
   const { user } = useContext(UserContext); 
 
   const senderMobileNumber = user.mobileNumber; 
-
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [recipientMobile, setRecipientMobile] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
   const [upiPin, setUpiPin] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true); // Loading state
   const [showPinPrompt, setShowPinPrompt] = useState(false);
 
-  
   const fetchAccounts = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get(`http://localhost:8080/account/${user.id}`);
       setAccounts(response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);
       setMessage('Failed to fetch accounts. Please try again later.');
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -35,7 +34,6 @@ const TransferMoney = () => {
     fetchAccounts();
   }, [user.id]);
 
-  
   const fetchSelectedAccountDetails = async (id) => {
     try {
       const response = await axios.get(`http://localhost:8080/account/accountId/${id}`);
@@ -46,7 +44,6 @@ const TransferMoney = () => {
     }
   };
 
- 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!recipientMobile || !transferAmount || !selectedAccount) {
@@ -60,28 +57,21 @@ const TransferMoney = () => {
     setShowPinPrompt(true);
   };
 
-  
   const handlePinSubmit = async () => {
     if (upiPin !== selectedAccount.upiPin) {
       setMessage('UPI PIN is incorrect. Please try again.');
       return;
     }
-  
-    
+
     const payload = {
       senderMobileNumber,
       receiverMobileNumber: recipientMobile,
       amount: parseFloat(transferAmount),
       upiPin
     };
-  
-    console.log('Transfer Payload:', payload);
-  
+
     try {
-     
       const transferResponse = await axios.post('http://localhost:8080/transfer', payload);
-      console.log('TransferResponse:', transferResponse);
-  
       
       if (transferResponse.status === 200) {
         setMessage('Transfer successful!');
@@ -95,7 +85,6 @@ const TransferMoney = () => {
       setShowPinPrompt(false); 
     }
   };
-  
 
   return (
     <div className="transfer-container">
@@ -127,7 +116,9 @@ const TransferMoney = () => {
           </div>
 
           <div className="accounts-list">
-            {accounts.length > 0 ? (
+            {loading ? (
+              <p>Loading...</p>
+            ) : accounts.length > 0 ? (
               accounts.map((account) => (
                 <div
                   key={account.id}
@@ -137,11 +128,10 @@ const TransferMoney = () => {
                   <h3>Bank: {account.bankName}</h3>
                   <p>Account Number: {account.accountNumber}</p>
                   <p>Transaction Limit: {account.transactionLimit}</p>
-                  
                 </div>
               ))
             ) : (
-              <p>Loading....</p>
+              <p>No bank accounts for {user.firstname}.</p>
             )}
           </div>
 
@@ -167,5 +157,3 @@ const TransferMoney = () => {
 };
 
 export default TransferMoney;
-
- 
