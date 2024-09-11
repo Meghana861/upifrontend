@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from './UserContext';
-
+import './ChangeUpiPin.css';
 const ChangeUpiPin = () => {
   const { user } = useContext(UserContext);
   const [accounts, setAccounts] = useState([]);
@@ -13,7 +13,7 @@ const ChangeUpiPin = () => {
   const [showPinFields, setShowPinFields] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state
 
-  // Fetch user bank accounts
+  
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
@@ -23,13 +23,13 @@ const ChangeUpiPin = () => {
         console.error('Error fetching accounts:', error);
         setMessage('Failed to fetch accounts. Please try again later.');
       } finally {
-        setLoading(false); // Set loading to false once data is fetched or error occurs
+        setLoading(false); 
       }
     };
     fetchAccounts();
   }, [user.id]);
 
-  // Verify old UPI PIN and show the fields for entering the new PIN
+  
   const verifyOldPin = async (accountId) => {
     try {
       const response = await axios.get(`http://localhost:8080/account/accountId/${accountId}`);
@@ -78,9 +78,9 @@ const ChangeUpiPin = () => {
       <h1>Change UPI PIN</h1>
       {message && <p className="message">{message}</p>}
 
-      {loading ? ( // Show loading indicator while data is being fetched
+      {loading ? (
         <p>Loading...</p>
-      ) : !showPinFields ? ( // Show accounts list if not showing PIN fields
+      ) : !showPinFields ? ( 
         <div className="accounts-list">
           {accounts.length > 0 ? (
             accounts.map((account) => (
@@ -108,10 +108,10 @@ const ChangeUpiPin = () => {
               </div>
             ))
           ) : (
-            <p>No accounts found.</p> // Message when no accounts are available
+            <p>No accounts found.</p> 
           )}
         </div>
-      ) : ( // Show PIN fields if `showPinFields` is true
+      ) : ( 
         <div className="new-upi-fields">
           <h2>Enter New UPI PIN</h2>
           <input
